@@ -1,65 +1,133 @@
-import Image from "next/image";
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+      {/* Navigation */}
+      <nav className="px-6 py-4 flex justify-between items-center">
+        <h1 className="text-3xl font-bold">🇩🇪 Deutsch Lernen</h1>
+        <div className="space-x-4">
+          <Link href="/auth/login">
+            <Button variant="ghost" className="text-white">
+              Login
+            </Button>
+          </Link>
+          <Link href="/auth/signup">
+            <Button className="bg-white text-blue-600 hover:bg-gray-100">
+              Sign Up
+            </Button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+      </nav>
+
+      {/* Hero Section */}
+      <section className="px-6 py-20 text-center">
+        <h2 className="text-5xl font-bold mb-6">Learn German Today</h2>
+        <p className="text-xl mb-8 max-w-2xl mx-auto">
+          Master German from A1 to B1 level through interactive lessons in Reading, Writing,
+          Listening, and Speaking. Start your language journey for free, or go premium for advanced content.
+        </p>
+
+        <div className="flex gap-4 justify-center mb-12">
+          <Link href="/auth/signup">
+            <Button size="lg">Get Started Free</Button>
+          </Link>
+          <Link href="/pricing">
+            <Button variant="ghost" size="lg" className="text-white border-2 border-white">
+              View Premium Plans
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="px-6 py-16 bg-white text-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-4xl font-bold text-center mb-12">Why Choose Deutsch Lernen?</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <FeatureCard
+              icon="📖"
+              title="Lesen (Reading)"
+              description="Improve your reading skills with authentic German texts and comprehension exercises."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <FeatureCard
+              icon="✏️"
+              title="Schreiben (Writing)"
+              description="Master German writing with guided exercises and instant feedback on grammar and syntax."
+            />
+            <FeatureCard
+              icon="🎧"
+              title="Hören (Listening)"
+              description="Train your ear with native speaker audio and listening comprehension drills."
+            />
+            <FeatureCard
+              icon="🗣️"
+              title="Sprechen (Speaking)"
+              description="Practice pronunciation with interactive speaking exercises and real-time feedback."
+            />
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* Levels Section */}
+      <section className="px-6 py-16 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <h3 className="text-4xl font-bold text-center mb-12 text-gray-900">
+            Learn at Your Level
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <LevelCard level="A1" description="Beginner - Start here if you're new to German" />
+            <LevelCard level="A2" description="Elementary - Build on your basics" />
+            <LevelCard level="B1" description="Intermediate - Achieve fluency" />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 py-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center">
+        <h3 className="text-3xl font-bold mb-4">Ready to Start Learning?</h3>
+        <p className="text-lg mb-8">
+          Join thousands of students learning German with our interactive platform.
+        </p>
+        <Link href="/auth/signup">
+          <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100">
+            Start Your Free Trial Now
+          </Button>
+        </Link>
+      </section>
+    </div>
+  );
+}
+
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="p-6 border rounded-lg hover:shadow-lg transition-shadow">
+      <div className="text-4xl mb-4">{icon}</div>
+      <h4 className="text-xl font-bold mb-2">{title}</h4>
+      <p className="text-gray-600">{description}</p>
+    </div>
+  );
+}
+
+function LevelCard({ level, description }: { level: string; description: string }) {
+  return (
+    <div className="p-8 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow text-center">
+      <div className="text-5xl font-bold text-blue-600 mb-4">{level}</div>
+      <p className="text-gray-700">{description}</p>
     </div>
   );
 }

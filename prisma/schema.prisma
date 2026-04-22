@@ -1,0 +1,182 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication
+model User {
+  id                String     @id @default(cuid())
+  email             String     @unique
+  name              String
+  password          String?
+  image             String?
+  isPremium         Boolean    @default(false)
+  premiumExpiresAt  DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  deletedAt         DateTime?
+
+  // Relations
+  progress          Progress[]
+  payments          Payment[]
+  submissions       ExerciseSubmission[]
+
+  @@index([email])
+}
+
+// Lesson model
+model Lesson {
+  id                String     @id @default(cuid())
+  title             String
+  description       String
+  skill             String     // 'lesen' | 'schreiben' | 'hören' | 'sprechen'
+  level             String     // 'A1' | 'A2' | 'B1'
+  content           String     @db.Text // Rich text content
+  audioUrl          String?
+  imageUrl          String?
+  isPremium         Boolean    @default(false)
+  estimatedDuration Int        // in minutes
+  order             Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // Relations
+  exercises         Exercise[]
+  progress          Progress[]
+
+  @@index([skill, level])
+  @@index([isPremium])
+}
+
+// Exercise model (exercises within lessons)
+model Exercise {
+  id                String     @id @default(cuid())
+  lessonId          String
+  lesson            Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  type              String     // 'multiple-choice' | 'fill-blank' | 'matching' | 'typing' | 'listening' | 'speaking'
+  question          String
+  content           String?    @db.Text
+  audioUrl          String?
+  options           Json?      // Array of {id, text, isCorrect}
+  correctAnswer     String?
+  explanation       String?    @db.Text
+  isPremium         Boolean    @default(false)
+  order             Int        @default(0)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // Relations
+  progress          Progress[]
+  submissions       ExerciseSubmission[]
+
+  @@index([lessonId])
+  @@index([type])
+}
+
+// Progress model (track user progress)
+model Progress {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId          String
+  lesson            Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  exerciseId        String?
+  exercise          Exercise?  @relation(fields: [exerciseId], references: [id], onDelete: SetNull)
+  score             Int        @default(0) // 0-100
+  isCompleted       Boolean    @default(false)
+  completedAt       DateTime?
+  timeSpent         Int        @default(0) // in seconds
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([lessonId])
+}
+
+// Exercise Submission model (track exercise attempts)
+model ExerciseSubmission {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exerciseId        String
+  exercise          Exercise   @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  userAnswer        String     @db.Text
+  isCorrect         Boolean
+  score             Int        @default(0)
+  feedbackText      String?    @db.Text
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([exerciseId])
+}
+
+// Payment model
+model Payment {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripePaymentId   String     @unique
+  amount            Int        // in cents
+  currency          String     @default("usd")
+  status            String     @default("pending") // 'pending' | 'completed' | 'failed'
+  planType          String     // 'monthly' | 'yearly'
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+// Quiz/Test model (for A1 assessments)
+model Quiz {
+  id                String     @id @default(cuid())
+  title             String
+  description       String
+  skill             String     // 'lesen' | 'schreiben' | 'hören' | 'sprechen'
+  level             String     // 'A1' | 'A2' | 'B1'
+  isPremium         Boolean    @default(false)
+  totalQuestions    Int
+  passingScore      Int        @default(70)
+  estimatedDuration Int        // in minutes
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  // Relations
+  quizExercises     QuizExercise[]
+
+  @@index([skill, level])
+}
+
+// Join table for Quiz and Exercise
+model QuizExercise {
+  id                String     @id @default(cuid())
+  quizId            String
+  quiz              Quiz       @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  exerciseId        String
+  order             Int        @default(0)
+
+  @@unique([quizId, exerciseId])
+}
+
+// Statistics model for user insights
+model UserStatistics {
+  id                String     @id @default(cuid())
+  userId            String     @unique
+  totalLessonsCompleted Int    @default(0)
+  totalScore        Int        @default(0)
+  totalTimeSpent    Int        @default(0) // in seconds
+  currentStreak     Int        @default(0)
+  longestStreak     Int        @default(0)
+  lastActivityAt    DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+}
